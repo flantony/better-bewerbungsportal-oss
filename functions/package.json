@@ -1,0 +1,52 @@
+{
+  "name": "better-bewerbungsportal-functions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Better Bewerbungsportal - Sync der Bundeswehr-Ausschreibungen nach Firestore",
+  "license": "AGPL-3.0-or-later",
+  "author": "Better Bewerbungsportal contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flantony/better-bewerbungsportal-oss",
+    "directory": "functions"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "vitest run",
+    "verify": "tsx src/verify.ts",
+    "serve": "npm run build && firebase emulators:start --only functions,firestore",
+    "shell": "npm run build && firebase functions:shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "mcp:dev": "tsx src/mcpServerLocal.ts",
+    "mcp:contract": "tsx src/checkMcpContract.ts --dump",
+    "mcp:check": "tsx src/checkMcpContract.ts",
+    "wuensche:check": "tsx src/checkBerufswuensche.ts",
+    "jobsv2:check": "tsx src/checkJobsV2.ts",
+    "skill:bundle": "tsx src/baueSkillBundle.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "express": "^4.21.2",
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^5.1.1",
+    "jszip": "^3.10.1",
+    "node-html-parser": "^9.0.1",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.2.108",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.16.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.10"
+  }
+}

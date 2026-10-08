@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://better-bewerbungsportal.de", "http://localhost:3000"],
+    "method": ["PUT"],
+    "responseHeader": ["Content-Type", "x-goog-content-length-range"],
+    "maxAgeSeconds": 3600
+  }
+]

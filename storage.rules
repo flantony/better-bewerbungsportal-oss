@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Öffentliche Ausschreibungs-Anhänge der Bundeswehr (Bewerbungsbögen,
+// Beiblätter, Broschüren), einmalig beim Sync heruntergeladen und dedupliziert
+// abgelegt — s. functions/src/jobDocumentStore.ts.
+//
+// Bewusst öffentlich lesbar: der Inhalt ist ohnehin öffentliches Material der
+// Bundeswehr, und der MCP-Server gibt stabile Links heraus, die ein KI-Tool
+// oder ein Browser direkt öffnen kann. Signierte URLs wären hier nachteilig,
+// weil sie verfallen, während die KI sie in einen Chatverlauf schreibt.
+//
+// Die Konto-Ablage `konten/{uid}/` steht unten (deny-all, Zugriff nur über
+// die Konto-Functions). Ausweiskopien nimmt kein Weg an.
+//
+// `bewerbungsmappen/` (s. unten) ist eine andere Sache: eine TRANSIENTE Ablage
+// für Bewerbungsunterlagen mit harter Ein-Stunden-Frist, für jeden Client
+// gesperrt (kein Lesen, kein Schreiben), gelöscht durch eine geplante Function
+// plus eine Lifecycle-Regel des Buckets für verwaiste Objekte. Kein Konto,
+// keine dauerhafte Speicherung - welche Daten das sind, steht in `DSFA.md`.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /jobDocuments/{docId} {
+      allow read: if true;
+      allow write: if false; // ausschließlich Admin SDK (Cloud Functions)
+    }
+
+    // Dateien der transienten Bewerbungsmappen: Zeugnisse, Lebensläufe,
+    // ausgefüllte Formulare. NIEMALS öffentlich lesbar, anders als
+    // jobDocuments — Zugriff nur über signierte URLs aus einer Function.
+    match /bewerbungsmappen/{mappenId}/{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Dateien im Konto. Dauerhaft, anders als bewerbungsmappen/ - deshalb
+    // ein eigener, expliziter Block statt sich auf das Default-Deny unten zu
+    // verlassen.
+    // Zugriff ausschliesslich ueber die Konto-Functions mit geprueftem
+    // ID-Token (Admin SDK, umgeht Rules); der Browser spricht diesen Pfad
+    // nie direkt an - analog zum Firestore-Block fuer konten/{uid}.
+    match /konten/{uid}/{pfad=**} {
+      allow read, write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

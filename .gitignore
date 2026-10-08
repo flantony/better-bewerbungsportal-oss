@@ -1,0 +1,13 @@
+node_modules/
+functions/lib/
+*.log
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Geheimnisse und lokale Umgebungen (nie einchecken)
+.secrets/
+*-key.json
+.env*
+!*.example

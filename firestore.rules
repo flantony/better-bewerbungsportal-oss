@@ -1,0 +1,93 @@
+rules_version = '2';
+
+// In Firestore liegen ganz überwiegend die öffentlichen Ausschreibungsdaten
+// der Bundeswehr. Personenbezogene Daten gibt es nur an zwei Stellen:
+//
+// - `konten/{uid}`: Kontodaten wie Suchprofil und Merkliste. Gelesen und
+//   geschrieben ausschließlich über die Konto-Functions mit geprüftem
+//   ID-Token; der Browser spricht die Collection nie direkt an.
+// - `bewerbungsmappen`: eine TRANSIENTE Ablage für Bewerbungsunterlagen mit
+//   harter Ein-Stunden-Frist, gelöscht durch eine geplante Function plus eine
+//   Lifecycle-Regel des Storage-Buckets.
+//
+// Welche Daten das genau sind und wie lange sie bleiben, steht in `DSFA.md`.
+//
+// Lesen der Ausschreibungsdaten ist öffentlich, denn ein Login würde nichts
+// schützen, was nicht ohnehin öffentlich ist - der MCP-Server gibt dieselben
+// Daten ohne Anmeldung heraus. Geschrieben wird ausnahmslos über das Admin SDK
+// aus den Cloud Functions (das umgeht Security Rules); Client-Schreibzugriff
+// ist überall verboten, bei `bewerbungsmappen` und `konten` auch das Lesen.
+// Alles, was hier nicht ausdrücklich steht, sperrt das Default-Deny am Ende.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Ausschreibungen im Vorgängerschema. Kein Client liest sie (das Web liest
+    // jobsV2), deshalb gesperrt. Regeln sind nicht rekursiv, die Subcollection
+    // braucht einen eigenen Block.
+    match /jobs/{jobId} {
+      allow read, write: if false;
+
+      match /content/{docId} {
+        allow read, write: if false;
+      }
+    }
+
+    // Ausschreibungen (Rohwerte der API unter `api.*`, Ableitungen daneben) -
+    // das, was der Browser direkt liest (Stellenliste).
+    match /jobsV2/{jobId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /content/{docId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    // Erklärungen zu Bundeswehr-/öD-Fachbegriffen (Referenzdaten, geschrieben
+    // per Admin SDK).
+    match /glossary/{slug} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Metadaten der dedupliziert abgelegten Ausschreibungs-Anhänge
+    // (s. functions/src/jobDocumentStore.ts). Gelesen nur serverseitig
+    // (MCP-Server, Detailseite über das Admin SDK). Die Dateien selbst sind in
+    // Storage öffentlich lesbar - die Links darauf gibt der Server heraus.
+    match /jobDocuments/{docId} {
+      allow read, write: if false;
+    }
+
+    // Protokoll der Sync-Läufe - rein betrieblich, kein Grund für Leserechte.
+    match /syncRuns/{runId} {
+      allow read, write: if false;
+    }
+
+    // Systeminterner Zustand, nur über das Admin SDK gepflegt.
+    match /systemCatalogs/{key} {
+      allow read, write: if false;
+    }
+
+    // Transiente Bewerbungsmappen. Enthalten Bewerberdokumente
+    // und werden eine Stunde nach dem Paketbau gelöscht (s. DSFA.md). Jeder
+    // Zugriff läuft über das Admin SDK; die Mappen-Kennung ist der
+    // Zugriffsschlüssel und darf nie in einer Client-Query landen.
+    match /bewerbungsmappen/{mappenId} {
+      allow read, write: if false;
+    }
+
+    // Nutzerkonten. Ausschliesslich ueber die Konto-Functions mit geprueftem
+    // ID-Token (Admin SDK) - der Browser liest und schreibt hier nie direkt.
+    // Regeln sind nicht rekursiv, deshalb der eigene Block fuer alles darunter.
+    match /konten/{uid} {
+      allow read, write: if false;
+      match /{unterpfad=**} {
+        allow read, write: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

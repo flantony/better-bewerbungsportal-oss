@@ -1,0 +1,50 @@
+# Vorlage fuer Firebase App Hosting: nach web/apphosting.yaml kopieren und die
+# Werte deines eigenen Firebase-Projekts eintragen
+# (Firebase-Konsole -> Projekteinstellungen -> Deine Apps -> Web-App).
+#
+# NEXT_PUBLIC_FIREBASE_* ist die Firebase-Web-Client-Konfiguration: sie landet
+# im Browser-Bundle und ist kein Geheimnis. Echte Geheimnisse gehoeren nie
+# hierher, sondern in den Secret Manager.
+runConfig:
+  minInstances: 0
+  maxInstances: 1
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: your-firebase-web-api-key
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: your-project-id.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: your-project-id
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: your-project-id.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: '000000000000'
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: '1:000000000000:web:0000000000000000000000'
+    availability:
+      - BUILD
+      - RUNTIME
+  # Basis-URL fuer absolute Metadaten-URLs (metadataBase in app/layout.tsx).
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://example.org
+    availability:
+      - BUILD
+      - RUNTIME

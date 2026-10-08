@@ -1,0 +1,2211 @@
+{
+  "//": [
+    "Indizes fuer die tatsaechlich gestellten Queries. Firestore braucht einen",
+    "Composite-Index pro Kombination aus Gleichheitsfeldern + Bereich/Sortierung;",
+    "reine Gleichheitsfilter auf EINEM Feld decken die automatischen",
+    "Einzelfeld-Indizes ab und stehen deshalb hier nicht.",
+    "",
+    "Gepflegt fuer: mcp/lib/queryJobs.ts (Stellensuche) und",
+    "web/src/features/jobs/api/service.ts (Trefferliste, Last Chance).",
+    "",
+    "Jeder Index steht fuer `jobs` und fuer `jobsV2`: Firestore-Indizes gelten",
+    "pro Collection, ein Index auf `jobs` hilft einer Query auf `jobsV2` nicht."
+  ],
+  "indexes": [
+    {
+      "//": "Trefferliste der Webapp: aktive Stellen, neueste zuerst.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Last Chance: Bereichsabfrage auf den Bewerbungsschluss.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche: array-contains auf den vorberechneten Tokens.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Archiv-Aufraeumung im Sync: archivierte Stellen aelter als ARCHIV_TAGE.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "removedAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ortssuche: array-contains auf den vorberechneten Orts-Tokens.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Ort + militaerisch/zivil - die haeufigste Kombination ueberhaupt.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb einer Laufbahngruppe.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb eines Organisationsbereichs.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche zusaetzlich nach militaerisch/zivil eingegrenzt.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb einer Laufbahngruppe (z.B. 'IT' + Offiziere).",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb eines Organisationsbereichs (z.B. 'IT' + Marine).",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Der Kernfall: Teilstreitkraft + Laufbahngruppe.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Teilstreitkraft + militaerisch/zivil.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Laufbahngruppe + militaerisch/zivil.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vertragsart, allein und mit militaerisch/zivil.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contractTypeLabel",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vollzeit/Teilzeit in Kombination mit militaerisch/zivil.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vollzeit",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Mindestbesoldung: Gleichheit auf die Tabelle, Bereich auf die Obergrenze.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.tabelle",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.bisStufe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Mindestbesoldung innerhalb einer Laufbahngruppe (z.B. Offiziere ab A11).",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.tabelle",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.bisStufe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Seiteneinstieg, allein und nach Laufbahngruppe eingegrenzt.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "jobAttributes.seiteneinstieg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": [
+        "AB HIER: sortierte Varianten fuer den MCP-Server (s. mcp/lib/queryJobs.ts).",
+        "",
+        "Mit orderBy + Cursor ist die Auswahl bei mehr Treffern als limit stabil statt",
+        "willkuerlich, und eine Seite liest nur limit+1 Dokumente.",
+        "",
+        "Firestore verlangt fuer Gleichheitsfilter + Sortierung einen Index, der das",
+        "Sortierfeld ZULETZT fuehrt - deshalb je Facettenkombination eine eigene Variante.",
+        "Fehlt eine Kombination hier, faellt queryJobs auf FAILED_PRECONDITION zurueck und",
+        "sortiert selbst; das ist korrekt, aber teurer. Ergaenzen statt hinnehmen, wenn",
+        "eine Kombination haeufig wird.",
+        "",
+        "Nicht enthalten: alles mit Besoldungs-Bereichsfilter (Firestore muesste dann",
+        "zuerst nach bisStufe sortieren) und alles mit Nachfilter (Alter, mehrteilige",
+        "Suchbegriffe) - diese Faelle sortiert queryJobs bewusst im Speicher."
+      ],
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ortssuche, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ort + militaerisch/zivil, sortiert - die haeufigste Kombination.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb einer Laufbahngruppe, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb eines Organisationsbereichs, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche + militaerisch/zivil, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb einer Laufbahngruppe, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb eines Organisationsbereichs, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Teilstreitkraft + Laufbahngruppe, sortiert - der Kernfall.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Teilstreitkraft + militaerisch/zivil, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Laufbahngruppe + militaerisch/zivil, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vertragsart + militaerisch/zivil, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contractTypeLabel",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contractTypeLabel",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vollzeit/Teilzeit + militaerisch/zivil, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vollzeit",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vollzeit",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Seiteneinstieg + Laufbahngruppe, sortiert.",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "jobAttributes.seiteneinstieg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": [
+        "Einstiegsweg (Reserveoffizier/Seiteneinstieg/Wiedereinstellung), deterministisch",
+        "aus dem refCode-Praefix. Die Facette ist klein, aber es ist die Frage von",
+        "Berufserfahrenen - und ein Textfilter verfehlt sie, weil fast keine",
+        "Seiteneinstiegs-Ausschreibung das Wort enthaelt."
+      ],
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Einstiegsweg + Laufbahngruppe - \"Reserveoffizier bei den Offizieren\".",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Einstiegsweg + Organisationsbereich - \"Reserveoffizier bei der Marine\".",
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "jobAttributes.seiteneinstieg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Trefferliste der Webapp: aktive Stellen, neueste zuerst. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Last Chance: Bereichsabfrage auf den Bewerbungsschluss. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche: array-contains auf den vorberechneten Tokens. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Archiv-Aufraeumung im Sync: archivierte Stellen aelter als ARCHIV_TAGE. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "removedAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ortssuche: array-contains auf den vorberechneten Orts-Tokens. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Ort + militaerisch/zivil - die haeufigste Kombination ueberhaupt. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb einer Laufbahngruppe. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb eines Organisationsbereichs. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche zusaetzlich nach militaerisch/zivil eingegrenzt. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb einer Laufbahngruppe (z.B. 'IT' + Offiziere). (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb eines Organisationsbereichs (z.B. 'IT' + Marine). (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        }
+      ]
+    },
+    {
+      "//": "Der Kernfall: Teilstreitkraft + Laufbahngruppe. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Teilstreitkraft + militaerisch/zivil. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Laufbahngruppe + militaerisch/zivil. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vertragsart, allein und mit militaerisch/zivil. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contractTypeLabel",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vollzeit/Teilzeit in Kombination mit militaerisch/zivil. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vollzeit",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Mindestbesoldung: Gleichheit auf die Tabelle, Bereich auf die Obergrenze. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.tabelle",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.bisStufe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Mindestbesoldung innerhalb einer Laufbahngruppe (z.B. Offiziere ab A11). (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.tabelle",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "besoldung.bisStufe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Seiteneinstieg, allein und nach Laufbahngruppe eingegrenzt. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "jobAttributes.seiteneinstieg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": [
+        "AB HIER: sortierte Varianten fuer den MCP-Server (s. mcp/lib/queryJobs.ts).",
+        "",
+        "Mit orderBy + Cursor ist die Auswahl bei mehr Treffern als limit stabil statt",
+        "willkuerlich, und eine Seite liest nur limit+1 Dokumente.",
+        "",
+        "Firestore verlangt fuer Gleichheitsfilter + Sortierung einen Index, der das",
+        "Sortierfeld ZULETZT fuehrt - deshalb je Facettenkombination eine eigene Variante.",
+        "Fehlt eine Kombination hier, faellt queryJobs auf FAILED_PRECONDITION zurueck und",
+        "sortiert selbst; das ist korrekt, aber teurer. Ergaenzen statt hinnehmen, wenn",
+        "eine Kombination haeufig wird.",
+        "",
+        "Nicht enthalten: alles mit Besoldungs-Bereichsfilter (Firestore muesste dann",
+        "zuerst nach bisStufe sortieren) und alles mit Nachfilter (Alter, mehrteilige",
+        "Suchbegriffe) - diese Faelle sortiert queryJobs bewusst im Speicher.",
+        "(jobsV2)"
+      ],
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ortssuche, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ort + militaerisch/zivil, sortiert - die haeufigste Kombination. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb einer Laufbahngruppe, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Ort innerhalb eines Organisationsbereichs, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ortTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche + militaerisch/zivil, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb einer Laufbahngruppe, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Titelsuche innerhalb eines Organisationsbereichs, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "suchTokens",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Teilstreitkraft + Laufbahngruppe, sortiert - der Kernfall. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Teilstreitkraft + militaerisch/zivil, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Laufbahngruppe + militaerisch/zivil, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vertragsart + militaerisch/zivil, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contractTypeLabel",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contractTypeLabel",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Vollzeit/Teilzeit + militaerisch/zivil, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vollzeit",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.ReqIndustry",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vollzeit",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Seiteneinstieg + Laufbahngruppe, sortiert. (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "jobAttributes.seiteneinstieg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": [
+        "Einstiegsweg (Reserveoffizier/Seiteneinstieg/Wiedereinstellung), deterministisch",
+        "aus dem refCode-Praefix. Die Facette ist klein, aber es ist die Frage von",
+        "Berufserfahrenen - und ein Textfilter verfehlt sie, weil fast keine",
+        "Seiteneinstiegs-Ausschreibung das Wort enthaelt.",
+        "(jobsV2)"
+      ],
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Einstiegsweg + Laufbahngruppe - \"Reserveoffizier bei den Offizieren\". (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Einstiegsweg + Organisationsbereich - \"Reserveoffizier bei der Marine\". (jobsV2)",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "einstiegsweg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "organisationsbereich",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "jobAttributes.seiteneinstieg",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "laufbahngruppe",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Bundeslandsuche, naechster Bewerbungsschluss zuerst.",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.Region",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationEndSortKey",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "Bundeslandsuche, neueste zuerst.",
+      "collectionGroup": "jobsV2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "active",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "api.Region",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstSeenAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
