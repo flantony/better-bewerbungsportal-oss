@@ -63,7 +63,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.9.0",
+    "@faker-js/faker": "^10.6.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
@@ -82,7 +82,9 @@
   "overrides": {
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "postcss": "8.5.28"
+    "postcss": "8.5.28",
+    "@grpc/grpc-js": "^1.14.6",
+    "@faker-js/faker": "^10.6.0"
   },
   "lint-staged": {
     "!(scripts)/**/*.{js,jsx,tsx,ts,css,less,scss,sass}": [
