@@ -5,16 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { KI_VERBINDUNGS_URL } from '../lib/connection';
 
-export function KiConnectionField() {
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(KI_VERBINDUNGS_URL);
-      toast.success('Adresse kopiert.');
-    } catch {
-      toast.error('Kopieren hat nicht geklappt. Markiere die Adresse von Hand.');
-    }
-  };
+async function handleCopy() {
+  try {
+    await navigator.clipboard.writeText(KI_VERBINDUNGS_URL);
+    toast.success('Adresse kopiert.');
+  } catch {
+    toast.error('Kopieren hat nicht geklappt. Markiere die Adresse von Hand.');
+  }
+}
 
+export function KiConnectionField() {
   return (
     <div className='bg-muted/50 flex flex-col gap-2 rounded-md border p-3 sm:flex-row sm:items-center'>
       {/* Immer markierbarer Text als Fallback: die Clipboard-API scheitert in

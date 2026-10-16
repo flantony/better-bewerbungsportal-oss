@@ -8,6 +8,17 @@ import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 
+function ChevronIcon({
+  orientation
+}: {
+  orientation?: 'left' | 'right' | 'up' | 'down';
+}) {
+  if (orientation === 'left') {
+    return <Icons.chevronLeft className='size-4' />;
+  }
+  return <Icons.chevronRight className='size-4' />;
+}
+
 function Calendar({
   className,
   classNames,
@@ -54,14 +65,7 @@ function Calendar({
         hidden: 'invisible',
         ...classNames
       }}
-      components={{
-        Chevron: ({ orientation }) => {
-          if (orientation === 'left') {
-            return <Icons.chevronLeft className='size-4' />;
-          }
-          return <Icons.chevronRight className='size-4' />;
-        }
-      }}
+      components={{ Chevron: ChevronIcon }}
       {...props}
     />
   );
