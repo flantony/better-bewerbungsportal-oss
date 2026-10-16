@@ -31,8 +31,7 @@
     "react/no-children-prop": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "react/no-unstable-nested-components": ["warn", { "allowAsProps": true }],
-
+    "react/no-unstable-nested-components": "warn",
     "no-shadow": "off",
     "import/no-anonymous-default-export": "warn",
     "import/no-unassigned-import": "off",
