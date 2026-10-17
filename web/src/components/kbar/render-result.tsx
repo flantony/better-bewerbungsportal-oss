@@ -7,6 +7,7 @@ export default function RenderResults() {
   return (
     <KBarResults
       items={results}
+      // oxlint-disable-next-line react/no-unstable-nested-components -- kbar calls onRender as a function, not as a component
       onRender={({ item, active }) =>
         typeof item === 'string' ? (
           <div className='text-muted-foreground px-4 py-2 text-sm uppercase'>{item}</div>
